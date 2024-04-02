@@ -1,20 +1,26 @@
 const db = require('../models')
-const Employee = db.employee;
+const Student = db.student;
 const Setting = db.setting;
+const University = db.university;
 
 exports.findAll = (req, res) => {
     try {
-    Employee.findAll({
-        attributes: ["id","name","position"],
+    Student.findAll({
+        attributes: ["id","name","degree"],
         include: [{
             model: Setting,
             attributes: ["theme"]
-        }]
+        },
+        {
+            model: University,
+            attributes: ["name"]
+        }
+        ]
     })
-    .then(employee => {
-        //res.json(employee);
-        res.send(employee);
-        //res.status(200).json(employee);
+    .then(student => {
+        //res.json(student);
+        res.send(student);
+        //res.status(200).json(student);
     })
     .catch( error => {
         console.log(error.message)
@@ -26,22 +32,23 @@ exports.findAll = (req, res) => {
 
 exports.create = (req, res) => {
     try {
-        if(!req.body.name || !req.body.position){
+        if(!req.body.name || !req.body.course){
             res.status(400).json({message:"can't empty!"});
             return;
         }
-        const employeeObj = {
+        const studentObj = {
         name: req.body.name,
-        position: req.body.position
+        course: req.body.course,
+        universityId: req.body.universityId
     }
-    Employee.create(employeeObj)
+    University.create(studentObj)
     .then(data => {
         //Insert to setting
         Setting.create({
             theme: req.body.theme,
-            employeeId: data.id
+            studentId: data.id
         });
-        res.status(200).json({message: "employee created"});
+        res.status(200).json({message: "Student created"});
     })
     .catch(error => {
         res.status(400).json({message: "error occured!"});
@@ -54,7 +61,14 @@ exports.create = (req, res) => {
 exports.findOne =(req, res) => {
     try {
         const id = req.params.id;
-        Employee.findByPk(id)
+        Student.findByPk(id, {
+            include: [
+                {
+                    model: University,
+                    attributes: ["name"]
+                }
+            ]
+        })
         .then(data => {
             res.status(200).json(data);
         })
@@ -71,12 +85,11 @@ exports.update = (req, res) => {
     try {
     const id = req.params.id
         
-    const employeeObj = {
+    const studentObj = {
         name: req.body.name,
-        position: req.body.position
+        course: req.body.course
     }
-
-    Employee.update(employeeObj, {
+    Student.update(studentObj, {
         where: { id:id },
     })
     .then((data) => {
@@ -93,7 +106,7 @@ exports.update = (req, res) => {
 }
 exports.delete = (req, res) => {
     try {
-        Employee.destroy({ where: {id: req.params.id}})
+        Student.destroy({ where: {id: req.params.id}})
         .then(data => {
             if(data == 1){
                 res.status(200).json({ message: "Delete Successfully" });

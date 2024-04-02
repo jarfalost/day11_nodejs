@@ -1,5 +1,7 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
+
 require('dotenv').config();
 const PORT = process.env.PORT;
 
@@ -8,8 +10,10 @@ app.use(express.json());
 //parse request of content-type - application/x-www-urlencoded
 app.use(express.urlencoded({ extended: true }));
 
+app.use(cors());
+
 const db = require('./app/models');
-db.sequelize.sync({force:false}).then(() => {
+db.sequelize.sync({ force:false }).then(() => {
     console.log('Database is syncing...')
 });
 
@@ -20,7 +24,8 @@ db.sequelize.sync({force:false}).then(() => {
 //const router = require('./routes/test.route.js');
 //app.use(router);
 
-require('./app/routes/employee.route')(app);
+require('./app/routes/student.route')(app);
+require('./app/routes/university.route')(app);
 
 app.get('/', (req, res) => {
     res.send('Default Route')

@@ -1,15 +1,15 @@
 module.exports = (sequelize, Datatype) => {
-    const setting = sequelize.define("setting", {
+    const University = sequelize.define("university", {
         id: {
             type: Datatype.INTEGER,
             autoIncrement: true,
             allowNull: false,
             primaryKey: true
         },
-        theme: {
+        name: {
             type: Datatype.STRING,
             allowNull: false
         }
     });
-    return setting;
+    return University;
 };
